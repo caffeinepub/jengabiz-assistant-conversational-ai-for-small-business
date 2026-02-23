@@ -1,0 +1,115 @@
+{
+  "kind": "build_request",
+  "title": "Optimize performance and add persistent AI button",
+  "projectName": "JengaBiz",
+  "priority": "high",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "make it faster and more optimized since it hangs"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Chat interface renders smoothly with 100+ messages without performance degradation",
+        "User input responds immediately without lag",
+        "Animated background does not block UI rendering"
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "make it faster and more optimized since it hangs"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Background animation runs at stable 30+ FPS on mid-range devices",
+        "CPU usage from background animation is reduced by at least 50%",
+        "Animation automatically reduces complexity on performance constraints"
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "make it faster and more optimized since it hangs"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Video page loads in under 2 seconds",
+        "Thumbnails load progressively as user scrolls",
+        "Category switching is instantaneous"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "make the ai button have a permanent place on the UI"
+        ]
+      },
+      "acceptanceCriteria": [
+        "AI button is visible on all tabs (Chat, Market Analysis, Video Learning, About)",
+        "Button remains fixed in bottom-right corner during scroll",
+        "Clicking button navigates to Chat tab or opens chat interface",
+        "Button has clear visual styling consistent with JengaBiz theme"
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-last"
+        ],
+        "quotes": [
+          "make it faster and more optimized since it hangs"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Components only re-render when their props actually change",
+        "React DevTools Profiler shows reduced render count",
+        "Overall app responsiveness is noticeably improved"
+      ]
+    }
+  ],
+  "constraints": [
+    "Do not change the backend actor structure or API contracts",
+    "Maintain existing authentication flow and Internet Identity integration",
+    "Preserve the glassmorphic design system and visual identity",
+    "Keep all existing features functional during optimization"
+  ],
+  "nonGoals": [
+    "Rewriting the entire application architecture",
+    "Changing the technology stack or framework",
+    "Adding new chat features beyond the persistent button",
+    "Modifying backend performance or data structures"
+  ],
+  "imageRequirements": {
+    "required": [],
+    "edits": []
+  }
+}

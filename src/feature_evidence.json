@@ -1,0 +1,110 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-optimize-chatpage-component-to-prevent-hanging-by-implementing-message-virtualization-for-large-chat-histories-debouncing-user-input-and-lazy-loading-the-animatedbackground-component",
+      "featureTitle": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "files": [
+        "frontend/src/components/AnimatedBackground.tsx",
+        "frontend/src/pages/ChatPage.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "authorization@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-reduce-animatedbackground-canvas-animation-complexity-by-limiting-the-number-of-gradient-layers-reducing-animation-frame-rate-on-lower-end-devices-and-implementing-requestanimationframe-throttling",
+      "featureTitle": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "files": [
+        "frontend/src/components/AnimatedBackground.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "authorization@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-optimize-videolearningpage-by-implementing-lazy-loading-for-video-thumbnails-pagination-for-large-video-lists-and-memoization-of-video-category-filtering-logic",
+      "featureTitle": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
+      "files": [
+        "frontend/src/pages/VideoLearningPage.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "authorization@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-persistent-floating-ai-assistant-button-that-remains-visible-across-all-pages-in-the-mainapp-component-positioned-in-the-bottom-right-corner-with-z-index-above-other-content-and-opens-the-chat-page-when-clicked",
+      "featureTitle": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
+      "files": [
+        "frontend/src/pages/MainApp.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "authorization@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-react-memo-and-usememo-optimizations-for-chatmessage-header-footer-and-other-frequently-re-rendered-components-to-prevent-unnecessary-re-renders",
+      "featureTitle": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
+      "files": [
+        "frontend/src/components/ChatMessage.tsx",
+        "frontend/src/components/Footer.tsx",
+        "frontend/src/components/Header.tsx",
+        "frontend/src/components/WelcomeScreen.tsx",
+        "frontend/src/pages/MarketAnalysisPage.tsx"
+      ],
+      "components": [
+        "http-outcalls@3.0.0",
+        "authorization@3.0.0",
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

@@ -1,0 +1,113 @@
+{
+  "kind": "implementation_plan",
+  "version": "1.0",
+  "title": "Optimize performance and add persistent AI button",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "acceptanceCriteria": [
+        "Chat interface renders smoothly with 100+ messages without performance degradation",
+        "User input responds immediately without lag",
+        "Animated background does not block UI rendering"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/ChatPage.tsx",
+          "operation": "modify",
+          "description": "Implement message virtualization using react-window or react-virtualized to render only visible messages. Add debouncing to handleSendMessage using lodash.debounce or a custom debounce implementation with 300ms delay. Lazy-load AnimatedBackground using React.lazy() and Suspense to prevent blocking initial render. Move message state management to use useReducer for better performance with large arrays."
+        },
+        {
+          "path": "frontend/src/components/AnimatedBackground.tsx",
+          "operation": "modify",
+          "description": "Wrap the default export with React.lazy to enable code-splitting and lazy loading when referenced from ChatPage."
+        }
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "summary": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "acceptanceCriteria": [
+        "Background animation runs at stable 30+ FPS on mid-range devices",
+        "CPU usage from background animation is reduced by at least 50%",
+        "Animation automatically reduces complexity on performance constraints"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/AnimatedBackground.tsx",
+          "operation": "modify",
+          "description": "Reduce gradient layers from current count to maximum 3-4 layers. Implement performance detection using navigator.hardwareConcurrency and window.devicePixelRatio to identify low-end devices. Add requestAnimationFrame throttling to target 30 FPS (skip every other frame) on detected low-end devices. Implement dynamic quality reduction by decreasing layer count and simplifying gradient complexity when frame time exceeds 33ms threshold. Add useReducedMotion hook to respect prefers-reduced-motion media query."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
+      "acceptanceCriteria": [
+        "Video page loads in under 2 seconds",
+        "Thumbnails load progressively as user scrolls",
+        "Category switching is instantaneous"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/VideoLearningPage.tsx",
+          "operation": "modify",
+          "description": "Add lazy loading to video thumbnail images using loading='lazy' attribute and Intersection Observer for progressive loading. Implement pagination with 12 videos per page using state management for currentPage and calculating slice indices. Memoize category filtering logic using useMemo to cache filtered results based on selectedCategory. Add React.memo wrapper to video card components to prevent unnecessary re-renders. Implement virtual scrolling or windowing if video list exceeds 50 items per category."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
+      "acceptanceCriteria": [
+        "AI button is visible on all tabs (Chat, Market Analysis, Video Learning, About)",
+        "Button remains fixed in bottom-right corner during scroll",
+        "Clicking button navigates to Chat tab or opens chat interface",
+        "Button has clear visual styling consistent with JengaBiz theme"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/MainApp.tsx",
+          "operation": "modify",
+          "description": "Add a persistent floating AI assistant button component after the main content section. Position it with fixed positioning at bottom-right (right-6 bottom-6) with z-50 to stay above all content. Style with glassmorphic design matching JengaBiz theme using backdrop-blur, bg-primary/80, rounded-full, and shadow-xl. Add onClick handler to set activeTab to 'chat' when clicked. Include appropriate icon (MessageCircle or Bot from lucide-react) and optional pulse animation. Ensure button is visible on all tabs and does not interfere with footer elements."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
+      "acceptanceCriteria": [
+        "Components only re-render when their props actually change",
+        "React DevTools Profiler shows reduced render count",
+        "Overall app responsiveness is noticeably improved"
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/ChatMessage.tsx",
+          "operation": "modify",
+          "description": "Wrap the default export with React.memo and provide a custom comparison function that checks if message.id, message.content, and index have changed. This prevents re-renders when parent ChatPage updates but message props remain the same."
+        },
+        {
+          "path": "frontend/src/components/Header.tsx",
+          "operation": "modify",
+          "description": "Wrap the default export with React.memo to prevent re-renders when parent state changes but Header props remain unchanged. Memoize any computed values or callbacks using useMemo and useCallback hooks."
+        },
+        {
+          "path": "frontend/src/components/Footer.tsx",
+          "operation": "modify",
+          "description": "Wrap the default export with React.memo to prevent unnecessary re-renders. Use useCallback for all event handlers (handleWhatsAppClick, handleUSSDClick, checkServiceStatus) to maintain reference equality across renders. Memoize service availability badges using useMemo."
+        },
+        {
+          "path": "frontend/src/pages/MarketAnalysisPage.tsx",
+          "operation": "modify",
+          "description": "Memoize chart data transformations and calculations using useMemo based on marketData dependency. Wrap chart components with React.memo if they're extracted as separate components. Use useCallback for refresh handler to prevent recreation on every render."
+        },
+        {
+          "path": "frontend/src/components/WelcomeScreen.tsx",
+          "operation": "modify",
+          "description": "Wrap the default export with React.memo since this component has no props and should never re-render unless explicitly needed. Memoize any internal computed values or static arrays using useMemo."
+        }
+      ]
+    }
+  ]
+}

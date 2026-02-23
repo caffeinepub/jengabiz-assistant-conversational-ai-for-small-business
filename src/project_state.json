@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "1.0.0",
+  "projectStateVersion": 3,
+  "summary": "New project",
+  "architectural_notes": [],
+  "known_issues": [
+    "App hangs/performance issues reported"
+  ],
+  "isFixRequest": true,
+  "existing_features": [
+    {
+      "id": "feature-optimize-chatpage-component-to-prevent-hanging-by-implementing-message-virtualization-for-large-chat-histories-debouncing-user-input-and-lazy-loading-the-animatedbackground-component",
+      "title": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-reduce-animatedbackground-canvas-animation-complexity-by-limiting-the-number-of-gradient-layers-reducing-animation-frame-rate-on-lower-end-devices-and-implementing-requestanimationframe-throttling",
+      "title": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-optimize-videolearningpage-by-implementing-lazy-loading-for-video-thumbnails-pagination-for-large-video-lists-and-memoization-of-video-category-filtering-logic",
+      "title": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-persistent-floating-ai-assistant-button-that-remains-visible-across-all-pages-in-the-mainapp-component-positioned-in-the-bottom-right-corner-with-z-index-above-other-content-and-opens-the-chat-page-when-clicked",
+      "title": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-react-memo-and-usememo-optimizations-for-chatmessage-header-footer-and-other-frequently-re-rendered-components-to-prevent-unnecessary-re-renders",
+      "title": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
+  "new_feature_requests": [
+    {
+      "id": "AR-1",
+      "summary": "Optimize app performance to prevent hanging",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Make AI button permanently visible in UI",
+      "reqIds": [],
+      "status": "pending"
+    }
+  ],
+  "projectName": "JengaBiz",
+  "clarification_mode": "instant",
+  "clarification_rounds": 0
+}

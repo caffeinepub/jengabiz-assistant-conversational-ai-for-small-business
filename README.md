@@ -1,2 +1,3 @@
-# jengabiz-assistant-conversational-ai-for-small-business
-Exported from Caffeine project: JengaBiz Assistant   Conversational AI for Small Business
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
