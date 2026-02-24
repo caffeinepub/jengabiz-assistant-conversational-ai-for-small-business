@@ -1,11 +1,12 @@
-import { useState, useMemo, useCallback, memo } from 'react';
-import { TrendingUp, DollarSign, BarChart3, RefreshCw } from 'lucide-react';
+import { useState, useMemo, useCallback, memo, useEffect } from 'react';
+import { TrendingUp, DollarSign, BarChart3, RefreshCw, Pause, Play } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useFetchMarketData } from '@/hooks/useQueries';
+import { useFetchMarketData, useGetExchangeRates, useGetLastExchangeRatesUpdateTimestamp } from '@/hooks/useQueries';
 import { toast } from 'sonner';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import ExchangeRateTable from '@/components/ExchangeRateTable';
 
 // Mock data for demonstration
 const mockTrendData = [
@@ -25,9 +26,12 @@ const mockSectorData = [
   { sector: 'Agriculture', growth: 3.9 },
 ];
 
+const REFETCH_INTERVAL = 300000; // 5 minutes
+
 const MarketAnalysisPage = memo(() => {
   const { mutate: fetchMarketData, isPending } = useFetchMarketData();
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isAutoRefreshEnabled, setIsAutoRefreshEnabled] = useState(true);
 
   const handleRefresh = useCallback(() => {
     fetchMarketData(undefined, {
@@ -41,6 +45,41 @@ const MarketAnalysisPage = memo(() => {
       },
     });
   }, [fetchMarketData]);
+
+  const toggleAutoRefresh = useCallback(() => {
+    setIsAutoRefreshEnabled(prev => !prev);
+    toast.info(isAutoRefreshEnabled ? 'Auto-refresh paused' : 'Auto-refresh resumed');
+  }, [isAutoRefreshEnabled]);
+
+  // Auto-refresh market data at intervals
+  useEffect(() => {
+    if (!isAutoRefreshEnabled) return;
+
+    const interval = setInterval(() => {
+      handleRefresh();
+    }, REFETCH_INTERVAL);
+
+    return () => clearInterval(interval);
+  }, [isAutoRefreshEnabled, handleRefresh]);
+
+  // Format relative time
+  const getRelativeTime = useCallback((date: Date | null) => {
+    if (!date) return 'Never';
+    
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    
+    if (diffMins < 1) return 'Just now';
+    if (diffMins === 1) return '1 minute ago';
+    if (diffMins < 60) return `${diffMins} minutes ago`;
+    
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours === 1) return '1 hour ago';
+    if (diffHours < 24) return `${diffHours} hours ago`;
+    
+    return date.toLocaleString();
+  }, []);
 
   // Memoize chart data to prevent unnecessary recalculations
   const trendChartData = useMemo(() => mockTrendData, []);
@@ -56,19 +95,38 @@ const MarketAnalysisPage = memo(() => {
             Real-time insights for small business trends and growth opportunities
           </p>
         </div>
-        <Button
-          onClick={handleRefresh}
-          disabled={isPending}
-          className="glass-button shadow-glow transition-all duration-300 hover:scale-105"
-        >
-          <RefreshCw className={`h-4 w-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
-          Refresh Data
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={toggleAutoRefresh}
+            variant="outline"
+            className="glass-button-subtle transition-all duration-300 hover:scale-105"
+          >
+            {isAutoRefreshEnabled ? (
+              <>
+                <Pause className="h-4 w-4 mr-2" />
+                Pause Updates
+              </>
+            ) : (
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Resume Updates
+              </>
+            )}
+          </Button>
+          <Button
+            onClick={handleRefresh}
+            disabled={isPending}
+            className="glass-button shadow-glow transition-all duration-300 hover:scale-105"
+          >
+            <RefreshCw className={`h-4 w-4 mr-2 ${isPending ? 'animate-spin' : ''}`} />
+            Refresh Data
+          </Button>
+        </div>
       </div>
 
       {lastUpdated && (
         <p className="text-sm text-muted-foreground/70">
-          Last updated: {lastUpdated.toLocaleTimeString()}
+          Last updated: {getRelativeTime(lastUpdated)}
         </p>
       )}
 
@@ -142,6 +200,7 @@ const MarketAnalysisPage = memo(() => {
                   stroke="oklch(var(--primary))"
                   strokeWidth={2}
                   name="Growth %"
+                  animationDuration={800}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -168,12 +227,26 @@ const MarketAnalysisPage = memo(() => {
                   }}
                 />
                 <Legend />
-                <Bar dataKey="growth" fill="oklch(var(--primary))" name="Growth %" />
+                <Bar 
+                  dataKey="growth" 
+                  fill="oklch(var(--primary))" 
+                  name="Growth %" 
+                  animationDuration={800}
+                />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
+
+      {/* Exchange Rates Section */}
+      <section className="space-y-4">
+        <div className="flex items-center gap-3">
+          <div className="h-1 w-12 bg-gradient-to-r from-primary to-primary/50 rounded-full" />
+          <h3 className="text-2xl font-bold text-foreground">Exchange Rates</h3>
+        </div>
+        <ExchangeRateTable />
+      </section>
 
       {/* Market Insights */}
       <Card className="glass-card shadow-glass border-glass">

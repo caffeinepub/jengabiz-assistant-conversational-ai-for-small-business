@@ -1,112 +1,122 @@
 {
   "kind": "build_request",
-  "title": "Optimize performance and add persistent AI button",
-  "projectName": "JengaBiz",
-  "priority": "high",
+  "title": "Add chat history tabs, fix video section, implement real-time market trends, and add autonomous exchange rate table",
+  "projectName": "JengaBiz Assistant",
+  "priority": "normal",
   "requirements": [
     {
-      "id": "REQ-1",
-      "text": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "id": "REQ-6",
+      "text": "Refactor ChatPage to implement a tabbed interface with 'Current Chat' and 'History' tabs. Move all messages into the History tab and keep the Current Chat tab for active conversation. Preserve localStorage persistence and existing debouncing/virtualization optimizations.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "make it faster and more optimized since it hangs"
+          "make the ai section have a history tab rather than show all the history at once"
         ]
       },
       "acceptanceCriteria": [
-        "Chat interface renders smoothly with 100+ messages without performance degradation",
-        "User input responds immediately without lag",
-        "Animated background does not block UI rendering"
+        "ChatPage displays two tabs: 'Current Chat' and 'History'",
+        "Current Chat tab shows only the active conversation",
+        "History tab displays all previous messages with virtualization",
+        "Tab switching preserves scroll position and message state",
+        "localStorage persistence continues to work across tabs"
       ]
     },
     {
-      "id": "REQ-2",
-      "text": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "id": "REQ-7",
+      "text": "Fix the VideoLearningPage to resolve any display, loading, or functionality issues. Ensure video thumbnails load correctly, pagination works smoothly, and the video dialog player functions properly for all TED/YouTube content.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "make it faster and more optimized since it hangs"
+          "fix the video section"
         ]
       },
       "acceptanceCriteria": [
-        "Background animation runs at stable 30+ FPS on mid-range devices",
-        "CPU usage from background animation is reduced by at least 50%",
-        "Animation automatically reduces complexity on performance constraints"
+        "All video thumbnails display correctly without broken images",
+        "Pagination controls work smoothly across all pages",
+        "Video dialog player opens and plays content without errors",
+        "Lazy loading continues to function for performance",
+        "Category filtering works correctly"
       ]
     },
     {
-      "id": "REQ-3",
-      "text": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
-      "target": "frontend",
+      "id": "REQ-8",
+      "text": "Implement real-time market trend updates in MarketAnalysisPage by adding periodic data fetching from the backend. Configure React Query to refetch market data at regular intervals (e.g., every 5 minutes) and display a timestamp showing when data was last updated.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "make it faster and more optimized since it hangs"
+          "make the market trend realtime"
         ]
       },
       "acceptanceCriteria": [
-        "Video page loads in under 2 seconds",
-        "Thumbnails load progressively as user scrolls",
-        "Category switching is instantaneous"
+        "Market trend data automatically refreshes at regular intervals",
+        "UI displays a 'Last updated' timestamp",
+        "Charts update smoothly without jarring transitions",
+        "Manual refresh button continues to work",
+        "Real-time updates can be paused/resumed by the user"
       ]
     },
     {
-      "id": "REQ-4",
-      "text": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
-      "target": "frontend",
+      "id": "REQ-9",
+      "text": "Add an exchange rate table component to MarketAnalysisPage displaying currency conversion rates (e.g., KES to USD, EUR, GBP). Create backend endpoints to store and retrieve exchange rate data.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "make the ai button have a permanent place on the UI"
+          "add exchange rate table"
         ]
       },
       "acceptanceCriteria": [
-        "AI button is visible on all tabs (Chat, Market Analysis, Video Learning, About)",
-        "Button remains fixed in bottom-right corner during scroll",
-        "Clicking button navigates to Chat tab or opens chat interface",
-        "Button has clear visual styling consistent with JengaBiz theme"
+        "Exchange rate table displays current rates for major currencies",
+        "Table shows base currency (KES) and target currencies with conversion rates",
+        "Data is fetched from backend and displayed in a clear tabular format",
+        "Table includes a timestamp showing when rates were last updated",
+        "Rates are stored persistently in the backend"
       ]
     },
     {
-      "id": "REQ-5",
-      "text": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
-      "target": "frontend",
+      "id": "REQ-10",
+      "text": "Implement autonomous daily updates for exchange rate data by creating a backend timer that fetches and updates exchange rates every 24 hours. Store the update timestamp and ensure the system continues updating even after canister upgrades.",
+      "target": "backend",
       "source": {
         "messageIds": [
-          "msg-last"
+          "msg-latest"
         ],
         "quotes": [
-          "make it faster and more optimized since it hangs"
+          "exchange rate table which ist to be updated everyday autonomously"
         ]
       },
       "acceptanceCriteria": [
-        "Components only re-render when their props actually change",
-        "React DevTools Profiler shows reduced render count",
-        "Overall app responsiveness is noticeably improved"
+        "Backend timer executes daily to update exchange rates",
+        "Update mechanism persists across canister upgrades",
+        "System logs successful and failed update attempts",
+        "Update timestamp is stored and retrievable",
+        "Timer can be manually triggered by admin for testing"
       ]
     }
   ],
   "constraints": [
-    "Do not change the backend actor structure or API contracts",
-    "Maintain existing authentication flow and Internet Identity integration",
-    "Preserve the glassmorphic design system and visual identity",
-    "Keep all existing features functional during optimization"
+    "Preserve existing performance optimizations (virtualization, memoization, lazy loading)",
+    "Maintain localStorage persistence for chat messages",
+    "Keep single-actor backend architecture",
+    "Exchange rate updates must be autonomous and not require manual intervention"
   ],
   "nonGoals": [
-    "Rewriting the entire application architecture",
-    "Changing the technology stack or framework",
-    "Adding new chat features beyond the persistent button",
-    "Modifying backend performance or data structures"
+    "Integration with external exchange rate APIs",
+    "Real-time WebSocket connections for market data",
+    "Historical exchange rate charting",
+    "Multi-currency wallet functionality",
+    "Currency conversion calculator beyond the table display"
   ],
   "imageRequirements": {
     "required": [],

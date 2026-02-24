@@ -6,8 +6,12 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Order "mo:core/Order";
 import Array "mo:core/Array";
+import Time "mo:core/Time";
 import OutCalls "http-outcalls/outcall";
 import AccessControl "authorization/access-control";
+import Set "mo:core/Set";
+import List "mo:core/List";
+import Float "mo:core/Float";
 
 actor {
   type Message = {
@@ -44,6 +48,46 @@ actor {
   let videoCategories = Map.empty<Text, VideoCategory>();
   var nextMessageId = 0;
   var nextVideoId = 0;
+
+  type ExchangeRate = {
+    currencyPair : Text;
+    rate : Float;
+  };
+
+  type MarketTrend = {
+    searchTerm : Text;
+    timestamp : Int;
+  };
+
+  var lastExchangeRateUpdateTimestamp : ?Int = null;
+  var lastMarketTrendsUpdateTimestamp : ?Int = null;
+
+  let exchangeRateUrls = Map.fromIter([
+    ("KES_TO_USD", "https://api.example.com/exchangerates/kes/usd"),
+    ("KES_TO_EUR", "https://api.example.com/exchangerates/kes/eur"),
+    ("KES_TO_GBP", "https://api.example.com/exchangerates/kes/gbp"),
+    ("KES_TO_JPY", "https://api.example.com/exchangerates/kes/jpy"),
+    ("KES_TO_ZMW", "https://api.example.com/exchangerates/kes/zmw"),
+    ("KES_TO_CNY", "https://api.example.com/exchangerates/kes/cny"),
+  ].values());
+  var realTimeMarketTrends : ?Text = null;
+  let historicalMarketTrendsQueue = List.empty<Text>();
+  let repeatedMarketTrends = Set.empty<Text>();
+
+  var exchangeRates : [ExchangeRate] = [
+    { currencyPair = "KES_TO_USD"; rate = 0.0 },
+    { currencyPair = "KES_TO_EUR"; rate = 0.0 },
+    { currencyPair = "KES_TO_GBP"; rate = 0.0 },
+    { currencyPair = "KES_TO_JPY"; rate = 0.0 },
+    { currencyPair = "KES_TO_ZMW"; rate = 0.0 },
+    { currencyPair = "KES_TO_CNY"; rate = 0.0 },
+    { currencyPair = "USD_TO_KES"; rate = 0.0 },
+    { currencyPair = "EUR_TO_KES"; rate = 0.0 },
+    { currencyPair = "GBP_TO_KES"; rate = 0.0 },
+    { currencyPair = "JPY_TO_KES"; rate = 0.0 },
+    { currencyPair = "ZMW_TO_KES"; rate = 0.0 },
+    { currencyPair = "CNY_TO_KES"; rate = 0.0 },
+  ];
 
   func compareTrends(trend1 : Text, trend2 : Text) : Order.Order {
     Text.compare(trend1, trend2);
@@ -273,5 +317,129 @@ actor {
 
     // Simulated response - real integration will replace this
     "USSD request sent successfully. You will receive a response shortly.";
+  };
+
+  public query ({ caller }) func getExchangeRates() : async [ExchangeRate] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch exchange rates");
+    };
+    exchangeRates;
+  };
+
+  public shared ({ caller }) func updateExchangeRate(currencyPair : Text, newRate : Float) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update exchange rates");
+    };
+
+    let updatedRates = exchangeRates.map(
+      func(rate) {
+        if (rate.currencyPair == currencyPair) {
+          { rate with rate = newRate };
+        } else {
+          rate;
+        };
+      }
+    );
+
+    exchangeRates := updatedRates;
+  };
+
+  public shared ({ caller }) func triggerAllExchangeRatesUpdate() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can trigger exchange rate updates");
+    };
+
+    await updateAllExchangeRates();
+    lastExchangeRateUpdateTimestamp := ?Time.now();
+  };
+
+  public query ({ caller }) func getLastExchangeRatesUpdateTimestamp() : async ?Int {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch exchange rate update timestamp");
+    };
+    lastExchangeRateUpdateTimestamp;
+  };
+
+  public query ({ caller }) func getRealTimeMarketTrends() : async ?Text {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch real-time market trends");
+    };
+    realTimeMarketTrends;
+  };
+
+  public shared ({ caller }) func updateRealTimeMarketTrends() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update real-time market trends");
+    };
+
+    let marketApiUrl = "https://api.syvit.kyaani.com/realmarkets/marketdata";
+    let fetchResult = await OutCalls.httpGetRequest(marketApiUrl, [], transform);
+    realTimeMarketTrends := ?fetchResult;
+  };
+
+  public query ({ caller }) func getHistoricalMarketTrends() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch historical market trends");
+    };
+    historicalMarketTrendsQueue.toArray();
+  };
+
+  public shared ({ caller }) func addHistoricalMarketTrend(trend : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add historical market trends");
+    };
+
+    if (historicalMarketTrendsQueue.size() >= 100) {
+      ignore historicalMarketTrendsQueue.removeLast();
+    };
+
+    historicalMarketTrendsQueue.add(trend);
+  };
+
+  public shared ({ caller }) func addRepeatedMarketTrend(trend : Text) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can add repeated market trends");
+    };
+
+    let previousSize = repeatedMarketTrends.size();
+    repeatedMarketTrends.add(trend);
+
+    if (repeatedMarketTrends.size() > previousSize) {
+      await addHistoricalMarketTrend(trend);
+    };
+  };
+
+  public query ({ caller }) func getRepeatedMarketTrends() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch repeated market trends");
+    };
+    repeatedMarketTrends.toArray();
+  };
+
+  public query ({ caller }) func getCommonSearchTerms() : async [Text] {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #user))) {
+      Runtime.trap("Unauthorized: Only users can fetch common search terms");
+    };
+
+    let commonTerms = List.empty<Text>();
+    let iter = repeatedMarketTrends.values();
+    let count = iter.size();
+
+    if (count > 0) {
+      let termsToTake = Nat.min(10, count);
+      let iterator = iter.take(termsToTake);
+      commonTerms.addAll(iterator);
+    };
+
+    commonTerms.toArray();
+  };
+
+  public shared ({ caller }) func updateAllExchangeRates() : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can update exchange rates");
+    };
+    for ((currencyPair, url) in exchangeRateUrls.entries()) {
+      ignore updateExchangeRate(currencyPair, 0.0);
+    };
   };
 };

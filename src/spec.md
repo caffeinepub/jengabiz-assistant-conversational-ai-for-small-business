@@ -1,13 +1,13 @@
 # Specification
 
 ## Summary
-**Goal:** Optimize application performance to eliminate UI hanging and add a persistent AI assistant button accessible from all pages.
+**Goal:** Enhance chat interface with tabbed history, fix video section issues, implement real-time market trends with automatic refresh, and add autonomous exchange rate table with daily updates.
 
 **Planned changes:**
-- Implement message virtualization and input debouncing in ChatPage to handle large chat histories smoothly
-- Reduce AnimatedBackground canvas animation complexity with throttled frame rates and adaptive performance adjustments
-- Add lazy loading for video thumbnails and pagination in VideoLearningPage
-- Implement React.memo and useMemo optimizations across frequently re-rendered components
-- Add a persistent floating AI assistant button in the bottom-right corner visible across all pages
+- Refactor ChatPage to use tabbed interface with 'Current Chat' and 'History' tabs
+- Fix VideoLearningPage display, loading, and functionality issues
+- Implement periodic data fetching for market trends with configurable refresh intervals
+- Add exchange rate table component displaying KES to major currencies (USD, EUR, GBP)
+- Create backend timer for autonomous daily exchange rate updates
 
-**User-visible outcome:** The application responds instantly without lag or hanging, chat and video pages load quickly even with large amounts of content, and users can access the AI assistant from any page via a fixed floating button.
+**User-visible outcome:** Users can organize chat conversations with a cleaner tabbed interface, access working video content, view automatically updating market trends with timestamps, and see current exchange rates that refresh daily without manual intervention.

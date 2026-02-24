@@ -1,6 +1,6 @@
 {
   "schemaVersion": "1.0.0",
-  "projectStateVersion": 3,
+  "projectStateVersion": 5,
   "summary": "New project",
   "architectural_notes": [],
   "known_issues": [
@@ -47,6 +47,38 @@
         "REQ-5"
       ],
       "version": 1
+    },
+    {
+      "id": "feature-refactor-chatpage-to-implement-a-tabbed-interface-with-current-chat-and-history-tabs-move-all-messages-into-the-history-tab-and-keep-the-current-chat-tab-for-active-conversation-preserve-localstorage-persistence-and-existing-debouncing-virtualization-optimizations",
+      "title": "Refactor ChatPage to implement a tabbed interface with 'Current Chat' and 'History' tabs. Move all messages into the History tab and keep the Current Chat tab for active conversation. Preserve localStorage persistence and existing debouncing/virtualization optimizations.",
+      "reqIds": [
+        "REQ-6"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-fix-the-videolearningpage-to-resolve-any-display-loading-or-functionality-issues-ensure-video-thumbnails-load-correctly-pagination-works-smoothly-and-the-video-dialog-player-functions-properly-for-all-ted-youtube-content",
+      "title": "Fix the VideoLearningPage to resolve any display, loading, or functionality issues. Ensure video thumbnails load correctly, pagination works smoothly, and the video dialog player functions properly for all TED/YouTube content.",
+      "reqIds": [
+        "REQ-7"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-real-time-market-trend-updates-in-marketanalysispage-by-adding-periodic-data-fetching-from-the-backend-configure-react-query-to-refetch-market-data-at-regular-intervals-e-g-every-5-minutes-and-display-a-timestamp-showing-when-data-was-last-updated",
+      "title": "Implement real-time market trend updates in MarketAnalysisPage by adding periodic data fetching from the backend. Configure React Query to refetch market data at regular intervals (e.g., every 5 minutes) and display a timestamp showing when data was last updated.",
+      "reqIds": [
+        "REQ-8"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-an-exchange-rate-table-component-to-marketanalysispage-displaying-currency-conversion-rates-e-g-kes-to-usd-eur-gbp-create-backend-endpoints-to-store-and-retrieve-exchange-rate-data",
+      "title": "Add an exchange rate table component to MarketAnalysisPage displaying currency conversion rates (e.g., KES to USD, EUR, GBP). Create backend endpoints to store and retrieve exchange rate data.",
+      "reqIds": [
+        "REQ-9"
+      ],
+      "version": 1
     }
   ],
   "new_feature_requests": [
@@ -60,6 +92,38 @@
       "id": "AR-2",
       "summary": "Make AI button permanently visible in UI",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Add history tab to AI chat section instead of showing all history at once",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-4",
+      "summary": "Fix video section",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-5",
+      "summary": "Make market trend data realtime",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-6",
+      "summary": "Add exchange rate table with autonomous daily updates",
+      "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-11",
+      "summary": "Implement autonomous daily updates for exchange rate data by creating a backend timer that fetches and updates exchange rates every 24 hours. Store the update timestamp and ensure the system continues updating even after canister upgrades.",
+      "reqIds": [
+        "REQ-10"
+      ],
       "status": "pending"
     }
   ],

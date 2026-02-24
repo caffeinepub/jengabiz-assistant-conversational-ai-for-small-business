@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useActor } from './useActor';
-import type { UserProfile, VideoCategory, Video } from '../backend';
+import type { UserProfile, VideoCategory, Video, ExchangeRate } from '../backend';
 
 export function useGetCallerUserProfile() {
   const { actor, isFetching: actorFetching } = useActor();
@@ -424,7 +424,37 @@ export function useCheckUSSDAvailability() {
     },
     enabled: !!actor && !actorFetching,
     staleTime: 1000 * 60 * 5, // Check every 5 minutes
-    retry: 2,
-    retryDelay: 2000,
+    retry: false,
+  });
+}
+
+// Exchange Rates Hooks
+export function useGetExchangeRates() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<ExchangeRate[]>({
+    queryKey: ['exchangeRates'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getExchangeRates();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
+  });
+}
+
+export function useGetLastExchangeRatesUpdateTimestamp() {
+  const { actor, isFetching: actorFetching } = useActor();
+
+  return useQuery<bigint | null>({
+    queryKey: ['exchangeRatesTimestamp'],
+    queryFn: async () => {
+      if (!actor) throw new Error('Actor not available');
+      return actor.getLastExchangeRatesUpdateTimestamp();
+    },
+    enabled: !!actor && !actorFetching,
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5, // Auto-refetch every 5 minutes
   });
 }

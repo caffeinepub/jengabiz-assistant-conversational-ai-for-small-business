@@ -1,111 +1,92 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Optimize performance and add persistent AI button",
+  "title": "Add chat history tabs, fix video section, implement real-time market trends, and add autonomous exchange rate table",
   "requirements": [
     {
-      "id": "REQ-1",
-      "summary": "Optimize ChatPage component to prevent hanging by implementing message virtualization for large chat histories, debouncing user input, and lazy-loading the AnimatedBackground component",
+      "id": "REQ-6",
+      "summary": "Refactor ChatPage to implement a tabbed interface with 'Current Chat' and 'History' tabs, moving all messages to History tab while keeping Current Chat for active conversation",
       "acceptanceCriteria": [
-        "Chat interface renders smoothly with 100+ messages without performance degradation",
-        "User input responds immediately without lag",
-        "Animated background does not block UI rendering"
+        "ChatPage displays two tabs: 'Current Chat' and 'History'",
+        "Current Chat tab shows only the active conversation",
+        "History tab displays all previous messages with virtualization",
+        "Tab switching preserves scroll position and message state",
+        "localStorage persistence continues to work across tabs"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/ChatPage.tsx",
           "operation": "modify",
-          "description": "Implement message virtualization using react-window or react-virtualized to render only visible messages. Add debouncing to handleSendMessage using lodash.debounce or a custom debounce implementation with 300ms delay. Lazy-load AnimatedBackground using React.lazy() and Suspense to prevent blocking initial render. Move message state management to use useReducer for better performance with large arrays."
-        },
-        {
-          "path": "frontend/src/components/AnimatedBackground.tsx",
-          "operation": "modify",
-          "description": "Wrap the default export with React.lazy to enable code-splitting and lazy loading when referenced from ChatPage."
+          "description": "Add tabbed interface with Tabs component from shadcn/ui. Create two tabs: 'Current Chat' for the active conversation input/responses and 'History' for all persisted messages. Maintain existing localStorage persistence logic, virtualization for message rendering in History tab, and debounced message sending. Ensure scroll position is preserved when switching between tabs using refs. Keep the lazy-loaded AnimatedBackground and all existing performance optimizations (memoization, useCallback)."
         }
       ]
     },
     {
-      "id": "REQ-2",
-      "summary": "Reduce AnimatedBackground canvas animation complexity by limiting the number of gradient layers, reducing animation frame rate on lower-end devices, and implementing requestAnimationFrame throttling",
+      "id": "REQ-7",
+      "summary": "Fix VideoLearningPage to resolve display, loading, and functionality issues ensuring video thumbnails, pagination, and dialog player work correctly",
       "acceptanceCriteria": [
-        "Background animation runs at stable 30+ FPS on mid-range devices",
-        "CPU usage from background animation is reduced by at least 50%",
-        "Animation automatically reduces complexity on performance constraints"
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/AnimatedBackground.tsx",
-          "operation": "modify",
-          "description": "Reduce gradient layers from current count to maximum 3-4 layers. Implement performance detection using navigator.hardwareConcurrency and window.devicePixelRatio to identify low-end devices. Add requestAnimationFrame throttling to target 30 FPS (skip every other frame) on detected low-end devices. Implement dynamic quality reduction by decreasing layer count and simplifying gradient complexity when frame time exceeds 33ms threshold. Add useReducedMotion hook to respect prefers-reduced-motion media query."
-        }
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "summary": "Optimize VideoLearningPage by implementing lazy loading for video thumbnails, pagination for large video lists, and memoization of video category filtering logic",
-      "acceptanceCriteria": [
-        "Video page loads in under 2 seconds",
-        "Thumbnails load progressively as user scrolls",
-        "Category switching is instantaneous"
+        "All video thumbnails display correctly without broken images",
+        "Pagination controls work smoothly across all pages",
+        "Video dialog player opens and plays content without errors",
+        "Lazy loading continues to function for performance",
+        "Category filtering works correctly"
       ],
       "file_operations": [
         {
           "path": "frontend/src/pages/VideoLearningPage.tsx",
           "operation": "modify",
-          "description": "Add lazy loading to video thumbnail images using loading='lazy' attribute and Intersection Observer for progressive loading. Implement pagination with 12 videos per page using state management for currentPage and calculating slice indices. Memoize category filtering logic using useMemo to cache filtered results based on selectedCategory. Add React.memo wrapper to video card components to prevent unnecessary re-renders. Implement virtual scrolling or windowing if video list exceeds 50 items per category."
+          "description": "Debug and fix video thumbnail loading by verifying image URLs and adding error handling with fallback images. Ensure pagination state management correctly tracks currentPage across category changes. Fix dialog player by verifying video URL format and iframe embed logic. Maintain existing lazy loading with Intersection Observer and memoized VideoCard components. Add error boundaries and loading states for better UX. Verify category filtering preserves pagination state correctly."
         }
       ]
     },
     {
-      "id": "REQ-4",
-      "summary": "Add a persistent floating AI assistant button that remains visible across all pages in the MainApp component, positioned in the bottom-right corner with z-index above other content, and opens the Chat page when clicked",
+      "id": "REQ-8",
+      "summary": "Implement real-time market trend updates in MarketAnalysisPage by adding periodic data fetching with React Query and displaying last updated timestamp",
       "acceptanceCriteria": [
-        "AI button is visible on all tabs (Chat, Market Analysis, Video Learning, About)",
-        "Button remains fixed in bottom-right corner during scroll",
-        "Clicking button navigates to Chat tab or opens chat interface",
-        "Button has clear visual styling consistent with JengaBiz theme"
+        "Market trend data automatically refreshes at regular intervals",
+        "UI displays a 'Last updated' timestamp",
+        "Charts update smoothly without jarring transitions",
+        "Manual refresh button continues to work",
+        "Real-time updates can be paused/resumed by the user"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pages/MainApp.tsx",
+          "path": "frontend/src/pages/MarketAnalysisPage.tsx",
           "operation": "modify",
-          "description": "Add a persistent floating AI assistant button component after the main content section. Position it with fixed positioning at bottom-right (right-6 bottom-6) with z-50 to stay above all content. Style with glassmorphic design matching JengaBiz theme using backdrop-blur, bg-primary/80, rounded-full, and shadow-xl. Add onClick handler to set activeTab to 'chat' when clicked. Include appropriate icon (MessageCircle or Bot from lucide-react) and optional pulse animation. Ensure button is visible on all tabs and does not interfere with footer elements."
+          "description": "Configure React Query to enable automatic refetching with refetchInterval set to 300000ms (5 minutes) for market data queries. Add state to track last update timestamp from query metadata. Display timestamp in UI with relative time formatting (e.g., 'Updated 2 minutes ago'). Add pause/resume toggle button that enables/disables the refetchInterval. Maintain existing manual refresh button functionality. Keep memoized chart data to prevent unnecessary recalculations. Ensure chart transitions are smooth by using recharts animation props."
+        },
+        {
+          "path": "frontend/src/hooks/useQueries.ts",
+          "operation": "modify",
+          "description": "Update the market data query hooks to include refetchInterval configuration option. Add lastUpdated timestamp tracking in query metadata. Ensure the query returns both data and timestamp information. Maintain existing query key structure and error handling."
         }
       ]
     },
     {
-      "id": "REQ-5",
-      "summary": "Implement React.memo and useMemo optimizations for ChatMessage, Header, Footer, and other frequently re-rendered components to prevent unnecessary re-renders",
+      "id": "REQ-9",
+      "summary": "Add an exchange rate table component to MarketAnalysisPage displaying currency conversion rates with data fetched from backend",
       "acceptanceCriteria": [
-        "Components only re-render when their props actually change",
-        "React DevTools Profiler shows reduced render count",
-        "Overall app responsiveness is noticeably improved"
+        "Exchange rate table displays current rates for major currencies",
+        "Table shows base currency (KES) and target currencies with conversion rates",
+        "Data is fetched from backend and displayed in a clear tabular format",
+        "Table includes a timestamp showing when rates were last updated",
+        "Rates are stored persistently in the backend"
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/ChatMessage.tsx",
-          "operation": "modify",
-          "description": "Wrap the default export with React.memo and provide a custom comparison function that checks if message.id, message.content, and index have changed. This prevents re-renders when parent ChatPage updates but message props remain the same."
+          "path": "frontend/src/components/ExchangeRateTable.tsx",
+          "operation": "create",
+          "description": "Create a memoized exchange rate table component that displays currency pairs and rates in a responsive table format using shadcn/ui Table components. Show base currency (KES) in one column, target currencies (USD, EUR, GBP) in another, and conversion rates with 4 decimal precision. Include a timestamp row showing when rates were last updated using the backend's getLastExchangeRatesUpdateTimestamp method. Add loading skeleton and error states. Use glassmorphism styling to match the app's design language."
         },
         {
-          "path": "frontend/src/components/Header.tsx",
+          "path": "frontend/src/hooks/useQueries.ts",
           "operation": "modify",
-          "description": "Wrap the default export with React.memo to prevent re-renders when parent state changes but Header props remain unchanged. Memoize any computed values or callbacks using useMemo and useCallback hooks."
-        },
-        {
-          "path": "frontend/src/components/Footer.tsx",
-          "operation": "modify",
-          "description": "Wrap the default export with React.memo to prevent unnecessary re-renders. Use useCallback for all event handlers (handleWhatsAppClick, handleUSSDClick, checkServiceStatus) to maintain reference equality across renders. Memoize service availability badges using useMemo."
+          "description": "Add useGetExchangeRates hook that fetches exchange rates from backend using actor.getExchangeRates(). Add useGetLastExchangeRatesUpdateTimestamp hook for fetching the last update timestamp. Configure queries with appropriate stale time and cache settings. Return typed ExchangeRate array and timestamp as bigint. Include error handling and loading states."
         },
         {
           "path": "frontend/src/pages/MarketAnalysisPage.tsx",
           "operation": "modify",
-          "description": "Memoize chart data transformations and calculations using useMemo based on marketData dependency. Wrap chart components with React.memo if they're extracted as separate components. Use useCallback for refresh handler to prevent recreation on every render."
-        },
-        {
-          "path": "frontend/src/components/WelcomeScreen.tsx",
-          "operation": "modify",
-          "description": "Wrap the default export with React.memo since this component has no props and should never re-render unless explicitly needed. Memoize any internal computed values or static arrays using useMemo."
+          "description": "Import and render the ExchangeRateTable component below the existing market trend charts. Position it in a new section with appropriate spacing and heading ('Exchange Rates'). Ensure it integrates with the page's glassmorphism design and responsive layout. The table will automatically fetch and display data using the hooks from useQueries."
         }
       ]
     }

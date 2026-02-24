@@ -36,13 +36,16 @@ const VideoCard = memo(({
   onPlay: (video: AnyVideo) => void;
 }) => {
   const [isLoadingThumb, setIsLoadingThumb] = useState(true);
+  const [hasError, setHasError] = useState(false);
 
   const handleThumbnailLoad = useCallback(() => {
     setIsLoadingThumb(false);
+    setHasError(false);
   }, []);
 
   const handleThumbnailError = useCallback(() => {
     setIsLoadingThumb(false);
+    setHasError(true);
   }, []);
 
   const handlePlayClick = useCallback(() => {
@@ -56,21 +59,27 @@ const VideoCard = memo(({
     >
       <CardHeader className="p-0">
         <div className="relative overflow-hidden rounded-t-lg aspect-video bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10">
-          {isLoadingThumb && (
+          {isLoadingThumb && !hasError && (
             <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/20 via-accent/20 to-primary/20 animate-shimmer bg-[length:200%_200%]">
               <Loader2 className="h-8 w-8 text-primary/60 animate-spin" />
             </div>
           )}
-          <img
-            src={video.thumbnail}
-            alt={video.title}
-            className={`w-full h-full object-cover transition-all duration-500 ${
-              isLoadingThumb ? 'opacity-0' : 'opacity-100 group-hover:scale-110'
-            }`}
-            onLoad={handleThumbnailLoad}
-            onError={handleThumbnailError}
-            loading="lazy"
-          />
+          {hasError ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/10 to-primary/10">
+              <Youtube className="h-12 w-12 text-primary/40" />
+            </div>
+          ) : (
+            <img
+              src={video.thumbnail}
+              alt={video.title}
+              className={`w-full h-full object-cover transition-all duration-500 ${
+                isLoadingThumb ? 'opacity-0' : 'opacity-100 group-hover:scale-110'
+              }`}
+              onLoad={handleThumbnailLoad}
+              onError={handleThumbnailError}
+              loading="lazy"
+            />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
             <Button
@@ -126,9 +135,10 @@ export default function VideoLearningPage() {
     setIsDialogOpen(true);
   }, []);
 
-  const isCuratedVideo = (video: AnyVideo): video is CuratedVideo => {
-    return 'source' in video && video.source === 'curated';
-  };
+  const handleCloseDialog = useCallback(() => {
+    setIsDialogOpen(false);
+    setSelectedVideo(null);
+  }, []);
 
   const getEmbedUrl = useCallback((video: AnyVideo): string => {
     const url = video.url;
@@ -143,10 +153,6 @@ export default function VideoLearningPage() {
       return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
     }
     return url;
-  }, []);
-
-  const getVideoUrl = useCallback((video: AnyVideo): string => {
-    return video.url;
   }, []);
 
   // Memoize merged categories to prevent recalculation on every render
@@ -295,55 +301,49 @@ export default function VideoLearningPage() {
             </div>
             <div className="text-center space-y-2">
               <h3 className="text-xl font-semibold text-foreground">No Videos Available</h3>
-              <p className="text-muted-foreground max-w-md">
-                Video content is being curated. Check back soon for educational resources on business growth, leadership, and entrepreneurship!
+              <p className="text-muted-foreground">
+                Check back soon for curated business learning content
               </p>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-              <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-              <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
             </div>
           </CardContent>
         </Card>
       )}
 
       {/* Video Player Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-4xl glass-card-strong border-glass shadow-glass animate-scale-in">
+      <Dialog open={isDialogOpen} onOpenChange={handleCloseDialog}>
+        <DialogContent className="max-w-4xl glass-card-strong shadow-glass border-glass">
           <DialogHeader>
-            <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <Youtube className="h-5 w-5 text-primary" />
+            <DialogTitle className="text-xl font-bold text-foreground">
               {selectedVideo?.title}
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="relative w-full rounded-lg overflow-hidden glass-card border-glass bg-black" style={{ paddingBottom: '56.25%' }}>
-              {selectedVideo && (
+          {selectedVideo && (
+            <div className="space-y-4">
+              <div className="relative aspect-video rounded-lg overflow-hidden bg-black">
                 <iframe
                   src={getEmbedUrl(selectedVideo)}
                   title={selectedVideo.title}
-                  className="absolute top-0 left-0 w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  className="absolute inset-0 w-full h-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
                 />
-              )}
-            </div>
-            {selectedVideo && (
-              <div className="space-y-3 glass-card p-4 rounded-lg border-glass">
-                <p className="text-sm text-muted-foreground leading-relaxed">{selectedVideo.description}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">
+                  {selectedVideo.description}
+                </p>
                 <Button
                   variant="outline"
                   size="sm"
-                  className="glass-button-subtle hover:glass-button transition-all duration-300"
-                  onClick={() => window.open(getVideoUrl(selectedVideo), '_blank')}
+                  className="glass-button-subtle"
+                  onClick={() => window.open(selectedVideo.url, '_blank')}
                 >
                   <ExternalLink className="h-4 w-4 mr-2" />
                   Watch on YouTube
                 </Button>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
     </div>

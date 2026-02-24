@@ -3,6 +3,7 @@ import { Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ChatMessage from '@/components/ChatMessage';
 import WelcomeScreen from '@/components/WelcomeScreen';
 import { generateAIResponse } from '@/lib/aiResponses';
@@ -24,7 +25,9 @@ export default function ChatPage() {
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>('current');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const historyScrollRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const debounceTimerRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -54,15 +57,15 @@ export default function ChatPage() {
     }
   }, [messages]);
 
-  // Auto-scroll to bottom when new messages arrive
+  // Auto-scroll to bottom when new messages arrive in current chat
   useEffect(() => {
-    if (scrollAreaRef.current) {
+    if (activeTab === 'current' && scrollAreaRef.current) {
       const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [messages, isLoading]);
+  }, [messages, isLoading, activeTab]);
 
   // Debounced send handler to prevent rapid submissions
   const handleSend = useCallback(async () => {
@@ -106,8 +109,16 @@ export default function ChatPage() {
     }
   }, [handleSend]);
 
-  // Memoize the message list to prevent unnecessary re-renders
-  const messageList = useMemo(() => (
+  // Memoize the current conversation (last 2 messages or loading state)
+  const currentConversation = useMemo(() => {
+    const recentMessages = messages.slice(-2);
+    return recentMessages.map((message, index) => (
+      <ChatMessage key={message.id} message={message} index={index} />
+    ));
+  }, [messages]);
+
+  // Memoize the full history
+  const historyMessages = useMemo(() => (
     messages.map((message, index) => (
       <ChatMessage key={message.id} message={message} index={index} />
     ))
@@ -120,29 +131,48 @@ export default function ChatPage() {
           <WelcomeScreen />
         </div>
       ) : (
-        <div className="flex-1 flex flex-col animate-fade-in">
-          <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4">
-            <div className="space-y-6 pb-4">
-              {messageList}
-              {isLoading && (
-                <div className="flex items-start gap-3 animate-fade-in">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full glass-card">
-                    <div className="h-5 w-5 text-primary animate-spin-slow">
-                      ✨
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col animate-fade-in">
+          <TabsList className="glass-card-strong shadow-glass mb-4">
+            <TabsTrigger value="current" className="data-[state=active]:glass-button">
+              Current Chat
+            </TabsTrigger>
+            <TabsTrigger value="history" className="data-[state=active]:glass-button">
+              History ({messages.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="current" className="flex-1 flex flex-col mt-0">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 pr-4">
+              <div className="space-y-6 pb-4">
+                {currentConversation}
+                {isLoading && (
+                  <div className="flex items-start gap-3 animate-fade-in">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full glass-card">
+                      <div className="h-5 w-5 text-primary animate-spin-slow">
+                        ✨
+                      </div>
+                    </div>
+                    <div className="flex-1 space-y-2 pt-2">
+                      <div className="flex gap-2">
+                        <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
+                        <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
+                        <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
+                      </div>
                     </div>
                   </div>
-                  <div className="flex-1 space-y-2 pt-2">
-                    <div className="flex gap-2">
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="h-2 w-2 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: '300ms' }} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </ScrollArea>
-        </div>
+                )}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="history" className="flex-1 flex flex-col mt-0">
+            <ScrollArea ref={historyScrollRef} className="flex-1 pr-4">
+              <div className="space-y-6 pb-4">
+                {historyMessages}
+              </div>
+            </ScrollArea>
+          </TabsContent>
+        </Tabs>
       )}
 
       {/* Input Area */}
